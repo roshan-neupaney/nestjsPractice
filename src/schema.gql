@@ -1,0 +1,98 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Brand {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  image_name: String!
+  status: String!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type Category {
+  description: String!
+  id: ID!
+  shoe: [Shoe!]!
+  title: String!
+}
+
+type Color {
+  color_code: String!
+  createdAt: DateTime!
+  id: ID!
+  status: String!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type ColorVariation {
+  color: [String!]!
+  id: ID!
+  image_url: String!
+  shoe: Shoe!
+  shoe_id: String!
+  sizes: [Size!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type FiltersPayload {
+  brands: [Brand!]!
+  categories: [Category!]!
+  colors: [Color!]!
+}
+
+type Query {
+  shoe(filter: ShoeFilterInput): ShoeRespose!
+  shoeFilters: FiltersPayload!
+}
+
+type Shoe {
+  category: Category
+  category_id: String!
+  colorVariation: [ColorVariation!]!
+  createdAt: String!
+  description: String!
+  details: String!
+  id: ID!
+  previous_price: String!
+  price: String!
+  slug_url: String!
+  sold_amount: Float!
+  status: Boolean!
+  title: String!
+  type: String!
+}
+
+input ShoeFilterInput {
+  brands: [String!]
+  categories: [String!]
+  colors: [String!]
+  page: Int = 1
+  pageSize: Int = 20
+  priceMax: Float
+  priceMin: Float
+  search: String
+  sortBy: String
+}
+
+type ShoeRespose {
+  data: [Shoe!]!
+  page: Int!
+  pageSize: Int!
+  totalData: Int!
+}
+
+type Size {
+  colorVariation: [ColorVariation!]!
+  color_variation_id: String!
+  id: ID!
+  size: String!
+  stock: String!
+}
