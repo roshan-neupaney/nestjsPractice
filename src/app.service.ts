@@ -24,7 +24,7 @@ export class AppService {
     // const allImages = await this.prisma.colorVariationImages.findMany({
     //   orderBy: {
     //     createdAt: 'asc',
-    //   },
+    //   }, 
     // });
     // const groupedData = groupBy(allImages, (item) => item.color_variation_id);
     // for (const key in groupedData) {

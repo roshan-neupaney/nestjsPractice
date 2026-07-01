@@ -21,6 +21,9 @@ import { InteractionModule } from './interaction/interaction.module';
 import { RatingModule } from './rating/rating.module';
 import { LocationModule } from './location/location.module';
 import { OrderModule } from './order/order.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -36,6 +39,15 @@ import { OrderModule } from './order/order.module';
     RatingModule,
     LocationModule,
     OrderModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+      playground: true,
+      introspection: true,
+      path: '/graphql',
+      context: ({ req, res }) => ({ req, res }),
+    }),
   ],
   controllers: [AppController],
   providers: [

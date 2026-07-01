@@ -62,7 +62,7 @@ export class ShoesService {
     }
   }
 
-  async findAll(query: QueryTypes, user_id: string) {
+  async findAll(query: QueryTypes) {
     const {
       categories,
       price_min,
@@ -72,52 +72,52 @@ export class ShoesService {
       sortBy,
       page,
       pageSize,
-      search
+      search,
     } = query;
     const colorsArray = colors ? colors.toLowerCase().split(',') : [];
     const categoriesArray = categories ? categories.split('|') : [];
     const brandsArray = brands ? brands.split(',') : [];
     const skip = (page - 1) * pageSize || 0;
-
+    const where: any = {
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { category: { title: { contains: search, mode: 'insensitive' } } },
+          { brand: { title: { contains: search, mode: 'insensitive' } } },
+        ],
+      }),
+      ...(categoriesArray?.length > 0 && {
+        category: {
+          title: {
+            in: categoriesArray,
+          },
+        },
+      }),
+      ...(brands?.length > 0 && {
+        brand: {
+          title: {
+            in: brandsArray,
+          },
+        },
+      }),
+      price: {
+        gte: price_min,
+        lte: price_max,
+      },
+      ...(colorsArray?.length > 0 && {
+        colorVariation: {
+          some: {
+            color: {
+              hasSome: colorsArray,
+            },
+          },
+        },
+      }),
+    };
     const shoeList = await this.prisma.shoe.findMany({
       skip,
       take: pageSize,
-      where: {
-        ...(search && {
-          OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { category: { title: { contains: search, mode: "insensitive" } } },
-            { brand: { title: { contains: search, mode: "insensitive" } } }
-          ],
-        }),
-        ...(categoriesArray?.length > 0 && {
-          category: {
-            title: {
-              in: categoriesArray,
-            },
-          },
-        }),
-        ...(brands?.length > 0 && {
-          brand: {
-            title: {
-              in: brandsArray,
-            },
-          },
-        }),
-        price: {
-          gte: price_min,
-          lte: price_max,
-        },
-        ...(colorsArray?.length > 0 && {
-          colorVariation: {
-            some: {
-              color: {
-                hasSome: colorsArray,
-              },
-            },
-          },
-        }),
-      },
+      where,
       include: {
         category: true,
         colorVariation: {
@@ -131,11 +131,12 @@ export class ShoesService {
         },
         brand: true,
         rating: true,
-        favorite: {
-          where: {
-            user_id,
-          },
-        },
+        // uncomment after some time
+        // favorite: {
+        //   where: {
+        //     user_id,
+        //   },
+        // },
       },
       orderBy:
         sortBy === 'newest'
@@ -148,8 +149,9 @@ export class ShoesService {
                 ? { sold_amount: 'desc' }
                 : {},
     });
-    return shoeList;
-  } 
+    const totalData = await this.prisma.shoe.count({ where });
+    return { data: shoeList, totalData, page, pageSize };
+  }
 
   async findOne(id: string, user_id: string) {
     const result = await this.prisma.$transaction(async (prisma) => {

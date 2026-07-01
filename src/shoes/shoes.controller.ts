@@ -56,8 +56,10 @@ export class ShoesController {
 
   @Get()
   @Public()
-  findAll(@Query() query: QueryTypes, @AuthUser() user: AuthUserType) {
-    return this.shoesService.findAll(query, user.sub);
+  async findAll(@Query() query: QueryTypes) {
+    const shoe = await this.shoesService.findAll(query);
+    console.log(shoe)
+    return shoe
   }
 
   @Get(':id')
@@ -94,7 +96,7 @@ export class ShoesController {
   }
 
   @Post('user/cart')
-  @Public()
+  // @Public()
   createCart(@Body() createCartDto: CreateCartDto, @AuthUser() user: any) {
     createCartDto.user_id = user.sub;
     return this.shoesService.createCart(createCartDto);
